@@ -1,19 +1,19 @@
 const fs = require("fs")
-
+// x = mileage
+// y = km
 function find_best_value()
 {
 	let tmp = this.global.result[0].lost;
-	let j = 0;
 	for (let i = 1; i < this.global.result.length; i++)
 	{
 		if (tmp > this.global.result[i].lost)
-		{
 			tmp = this.global.result[i].lost;
-			j = i;
-		}
 	}
-	console.log("La perte la plus faible est "+ this.global.result[j].lost + "Pour une precision de : " + this.precision)
+	console.log("La perte la plus faible est "+ tmp.toFixed(2) + "Pour une precision de : " + this.precision)
+	console.log("The best formul are : y = " + this.a + " " + this.b + "x")
+	process.exit();
 }
+
 function test_car_price ()
 {
 	var lost = 0;
@@ -23,15 +23,10 @@ function test_car_price ()
 		lost += Number(this.tabValue[i].diff);
 	}
 	this.global.result.push({'lost':lost,'precision':this.precision})
-	//console.log("For "+ this.precision.toFixed(6) +" precision lost price are : " + lost.toFixed(0))
 	this.precision += parseFloat(0.001);
 	read_csv(this.precision)
 }
 
-function increase_precision ()
-{
-
-}
 function apply_affine (mileage, truePrice, a , b)
 {
 	this.yPrime = parseFloat(a) + (parseFloat(mileage * b));
@@ -44,12 +39,13 @@ function apply_affine (mileage, truePrice, a , b)
 
 function find_a_b ()
 {
-	this.a  = ((this.total.y * this.total.x2) - (this.total.x * this.total.xy)) 
+	this.a = ((this.total.y * this.total.x2) - (this.total.x * this.total.xy))
 				/ ((this.length * this.total.x2) - (this.total.x * this.total.x));
-	this.b = ((this.length * this.total.xy) - (this.total.x * this.total.y)) / ((this.length * this.total.x2) - (this.total.x * this.total.x));
+	this.b = ((this.length * this.total.xy) - (this.total.x * this.total.y))
+				/ ((this.length * this.total.x2) - (this.total.x * this.total.x));
 }
 
-function get_total()
+function get_total ()
 {
 	for (let i = 0; i < this.tabValue.length; i++)
 	{
@@ -76,39 +72,27 @@ function parse_csv (contents)
 	this.length = this.tabValue.length
 }
 
-function read_csv (precision)
+function init env (precision)
 {
+	this.total = {'x' : 0,'y' : 0,'xy': 0,'x2': 0,'y2': 0};
+
 	if (!this.global || !this.global.result)
-	{
-		this.global = {
-		'result':[]
-		};
-	}
-	this.total = {
-		'x' : 0,
-		'y' : 0,
-		'xy': 0,
-		'x2': 0,
-		'y2': 0,
-	}
+		this.global = {'result':[]};
 	if (!precision)
 		this.precision = parseFloat(0.0000001);
 	else if (parseFloat(this.precision) >= parseFloat(3) == true)
-	{
 		find_best_value();
-		console.log("The best formul are : y = " + this.a + " " + this.b + "x")
-		//draw(this.tabValue, 'mileage', 'price')
-		process.exit();
-	}
 	else
-	{
 		this.precision = precision
-	}
-
+	if (!this.tabValue || this.tabValue.length == 0)
+		this.tabValue = [];
+}
+function read_csv (precision)
+{
+	init_env(precision);
 	if (!this.tabValue || this.tabValue.length == 0)
 	{
 		fs.readFile('data.csv', 'utf8', function(err, contents) {
-			this.tabValue 		= [];
 			parse_csv(contents);
 			get_total();
 			find_a_b();
@@ -116,9 +100,7 @@ function read_csv (precision)
 		});
 	}
 	else
-	{
 		test_car_price();
-	}
 }
 
 read_csv();
