@@ -56,7 +56,7 @@ function parse_csv (contents)
 function read_csv (precision)
 {
 	this.trueTheta 		= {'theta0':1,'theta1':0};
-	this.precision 		= 0.000001;
+	this.precision 		= 0.00001;
 	this.learningRate 	= 0.0001;
 	this.normalisation 	= 1000.0;
 	this.tabValue 		= [];
@@ -69,10 +69,11 @@ function read_csv (precision)
 			if (err)
 				console.log("Error : " + err);
 			else {
-				get_total(parse_csv(contents));
 				if (fs.existsSync('result.txt'))
 					console.log("The program is already trained.")
 				else {
+					get_total(parse_csv(contents));
+
 					let data = this.trueTheta.theta0 * this.normalisation + '\n' + this.trueTheta.theta1 + '\n';
 					fs.appendFile('result.txt', data, function (err) {
 						if (err) 
